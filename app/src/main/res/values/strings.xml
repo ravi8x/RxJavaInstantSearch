@@ -1,4 +1,7 @@
 <resources>
-    <string name="app_name">RxJava Search</string>
+    <string name="app_name">Instant Search</string>
     <string name="action_settings">Settings</string>
+    <string name="activity_local_search">Local Search</string>
+    <string name="activity_remote_search">Remote Search</string>
+    <string name="hint_search">Type contact name</string>
 </resources>
