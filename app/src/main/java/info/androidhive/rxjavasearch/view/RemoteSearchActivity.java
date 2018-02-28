@@ -42,6 +42,7 @@ public class RemoteSearchActivity extends AppCompatActivity implements ContactsA
     private static final String TAG = RemoteSearchActivity.class.getSimpleName();
 
     private CompositeDisposable disposable = new CompositeDisposable();
+    private PublishSubject<String> publishSubject = PublishSubject.create();
     private ApiService apiService;
     private ContactsAdapter mAdapter;
     private List<Contact> contactsList = new ArrayList<>();
@@ -54,8 +55,6 @@ public class RemoteSearchActivity extends AppCompatActivity implements ContactsA
     RecyclerView recyclerView;
 
     private Unbinder unbinder;
-
-    private PublishSubject<String> publishSubject = PublishSubject.create();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,26 +80,29 @@ public class RemoteSearchActivity extends AppCompatActivity implements ContactsA
 
         DisposableObserver<List<Contact>> observer = getSearchObserver();
 
-        disposable.add(publishSubject.debounce(300, TimeUnit.MILLISECONDS)
-                .distinctUntilChanged()
-                .switchMapSingle(new Function<String, Single<List<Contact>>>() {
-                    @Override
-                    public Single<List<Contact>> apply(String s) throws Exception {
-                        return apiService.getContacts(null, s)
-                                .subscribeOn(Schedulers.io())
-                                .observeOn(AndroidSchedulers.mainThread());
-                    }
-                })
-                .subscribeWith(observer));
+        disposable.add(
+                publishSubject
+                        .debounce(300, TimeUnit.MILLISECONDS)
+                        .distinctUntilChanged()
+                        .switchMapSingle(new Function<String, Single<List<Contact>>>() {
+                            @Override
+                            public Single<List<Contact>> apply(String s) throws Exception {
+                                return apiService.getContacts(null, s)
+                                        .subscribeOn(Schedulers.io())
+                                        .observeOn(AndroidSchedulers.mainThread());
+                            }
+                        })
+                        .subscribeWith(observer));
 
 
         // skipInitialValue() - skip for the first time when EditText empty
-        disposable.add(RxTextView.textChangeEvents(inputSearch)
-                .skipInitialValue()
-                .debounce(300, TimeUnit.MILLISECONDS)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeWith(searchContactsTextWatcher()));
+        disposable.add(
+                RxTextView.textChangeEvents(inputSearch)
+                        .skipInitialValue()
+                        .debounce(300, TimeUnit.MILLISECONDS)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribeWith(searchContactsTextWatcher()));
 
         disposable.add(observer);
 
