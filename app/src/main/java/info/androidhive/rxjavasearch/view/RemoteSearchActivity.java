@@ -86,7 +86,6 @@ public class RemoteSearchActivity extends AppCompatActivity implements ContactsA
                 .switchMapSingle(new Function<String, Single<List<Contact>>>() {
                     @Override
                     public Single<List<Contact>> apply(String s) throws Exception {
-                        Log.e(TAG, "apply: " + s);
                         return apiService.getContacts(null, s)
                                 .subscribeOn(Schedulers.io())
                                 .observeOn(AndroidSchedulers.mainThread());
@@ -95,7 +94,7 @@ public class RemoteSearchActivity extends AppCompatActivity implements ContactsA
                 .subscribeWith(observer));
 
 
-        // skipInitialValue() - skip for the first time when edittext empty
+        // skipInitialValue() - skip for the first time when EditText empty
         disposable.add(RxTextView.textChangeEvents(inputSearch)
                 .skipInitialValue()
                 .debounce(300, TimeUnit.MILLISECONDS)
@@ -113,7 +112,6 @@ public class RemoteSearchActivity extends AppCompatActivity implements ContactsA
         return new DisposableObserver<List<Contact>>() {
             @Override
             public void onNext(List<Contact> contacts) {
-                Log.e(TAG, "onNext: " + contacts.size());
                 contactsList.clear();
                 contactsList.addAll(contacts);
                 mAdapter.notifyDataSetChanged();
@@ -121,7 +119,7 @@ public class RemoteSearchActivity extends AppCompatActivity implements ContactsA
 
             @Override
             public void onError(Throwable e) {
-
+                Log.e(TAG, "onError: " + e.getMessage());
             }
 
             @Override
@@ -135,13 +133,13 @@ public class RemoteSearchActivity extends AppCompatActivity implements ContactsA
         return new DisposableObserver<TextViewTextChangeEvent>() {
             @Override
             public void onNext(TextViewTextChangeEvent textViewTextChangeEvent) {
-                Log.e(TAG, "Search: " + textViewTextChangeEvent.text());
+                Log.d(TAG, "Search query: " + textViewTextChangeEvent.text());
                 publishSubject.onNext(textViewTextChangeEvent.text().toString());
             }
 
             @Override
             public void onError(Throwable e) {
-
+                Log.e(TAG, "onError: " + e.getMessage());
             }
 
             @Override
@@ -160,11 +158,6 @@ public class RemoteSearchActivity extends AppCompatActivity implements ContactsA
 
     @Override
     public void onContactSelected(Contact contact) {
-
-    }
-
-    @Override
-    public void onPointerCaptureChanged(boolean hasCapture) {
 
     }
 

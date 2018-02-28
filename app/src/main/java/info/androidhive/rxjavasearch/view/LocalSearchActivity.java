@@ -25,6 +25,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
 import info.androidhive.rxjavasearch.R;
+import info.androidhive.rxjavasearch.adapter.ContactsAdapterFilterable;
 import info.androidhive.rxjavasearch.network.ApiClient;
 import info.androidhive.rxjavasearch.network.ApiService;
 import info.androidhive.rxjavasearch.network.model.Contact;
@@ -46,7 +47,6 @@ public class LocalSearchActivity extends AppCompatActivity implements ContactsAd
     @BindView(R.id.input_search)
     EditText inputSearch;
 
-
     @BindView(R.id.recycler_view)
     RecyclerView recyclerView;
 
@@ -58,7 +58,7 @@ public class LocalSearchActivity extends AppCompatActivity implements ContactsAd
         setContentView(R.layout.activity_local_search);
         unbinder = ButterKnife.bind(this);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
@@ -83,13 +83,15 @@ public class LocalSearchActivity extends AppCompatActivity implements ContactsAd
                         return TextUtils.isEmpty(textViewTextChangeEvent.text().toString()) || textViewTextChangeEvent.text().toString().length() > 2;
                     }
                 })*/
-                //.distinctUntilChanged()
+                .distinctUntilChanged()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeWith(searchContacts()));
 
 
         // source: `gmail` or `linkedin`
+        // fetching all contacts on app launch
+        // only gmail will be fetched
         fetchContacts("gmail");
     }
 
@@ -97,13 +99,13 @@ public class LocalSearchActivity extends AppCompatActivity implements ContactsAd
         return new DisposableObserver<TextViewTextChangeEvent>() {
             @Override
             public void onNext(TextViewTextChangeEvent textViewTextChangeEvent) {
-                Log.e(TAG, "Search: " + textViewTextChangeEvent.text());
+                Log.d(TAG, "Search query: " + textViewTextChangeEvent.text());
                 mAdapter.getFilter().filter(textViewTextChangeEvent.text());
             }
 
             @Override
             public void onError(Throwable e) {
-
+                Log.e(TAG, "onError: " + e.getMessage());
             }
 
             @Override
@@ -113,6 +115,9 @@ public class LocalSearchActivity extends AppCompatActivity implements ContactsAd
         };
     }
 
+    /**
+     * Fetching all contacts
+     */
     private void fetchContacts(String source) {
         disposable.add(apiService
                 .getContacts(source, null)
@@ -121,7 +126,6 @@ public class LocalSearchActivity extends AppCompatActivity implements ContactsAd
                 .subscribeWith(new DisposableSingleObserver<List<Contact>>() {
                     @Override
                     public void onSuccess(List<Contact> contacts) {
-                        Log.d(TAG, "onSuccess: " + contacts.size());
                         contactsList.clear();
                         contactsList.addAll(contacts);
                         mAdapter.notifyDataSetChanged();

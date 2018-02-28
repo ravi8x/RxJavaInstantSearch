@@ -1,4 +1,4 @@
-package info.androidhive.rxjavasearch.view;
+package info.androidhive.rxjavasearch.adapter;
 
 /**
  * Created by ravi on 31/01/18.

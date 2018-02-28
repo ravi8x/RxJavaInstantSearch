@@ -24,8 +24,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
 
-
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         // white background notification bar
@@ -33,12 +32,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @OnClick(R.id.btn_local_search)
-    public void localSearch() {
+    public void openLocalSearch() {
+        // launching local search activity
         startActivity(new Intent(MainActivity.this, LocalSearchActivity.class));
     }
 
     @OnClick(R.id.btn_remote_search)
-    public void remoteSearch() {
+    public void openRemoteSearch() {
+        // launch remote search activity
         startActivity(new Intent(MainActivity.this, RemoteSearchActivity.class));
     }
 
