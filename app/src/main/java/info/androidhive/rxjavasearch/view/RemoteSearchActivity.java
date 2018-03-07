@@ -136,6 +136,7 @@ public class RemoteSearchActivity extends AppCompatActivity implements ContactsA
             @Override
             public void onNext(TextViewTextChangeEvent textViewTextChangeEvent) {
                 Log.d(TAG, "Search query: " + textViewTextChangeEvent.text());
+
                 publishSubject.onNext(textViewTextChangeEvent.text().toString());
             }
 

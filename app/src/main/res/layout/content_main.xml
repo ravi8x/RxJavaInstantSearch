@@ -15,7 +15,7 @@
         android:layout_marginTop="30dp"
         android:layout_height="wrap_content"
         android:gravity="center_horizontal"
-        android:text="Perform local search on array. First it fetches all contacts and performs local search" />
+        android:text="Performs local search on array list. First it fetches all contacts and performs local search" />
 
     <Button
         android:id="@+id/btn_local_search"
@@ -32,7 +32,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="50dp"
         android:gravity="center_horizontal"
-        android:text="Perform Remote search on array.Concats will be fetched from multiple remote databases and merged using switchMap() operator" />
+        android:text="Performs Remote Search by sending HTTP call every time search query is entered" />
 
     <Button
         android:id="@+id/btn_remote_search"
