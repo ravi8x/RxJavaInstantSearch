@@ -27,7 +27,7 @@ import butterknife.Unbinder;
 import info.androidhive.rxjavasearch.R;
 import info.androidhive.rxjavasearch.adapter.ContactsAdapterFilterable;
 import info.androidhive.rxjavasearch.network.ApiClient;
-import info.androidhive.rxjavasearch.network.ApiService;
+import info.androidhive.rxjavasearch.network.ContactApi;
 import info.androidhive.rxjavasearch.network.model.Contact;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
@@ -40,7 +40,7 @@ public class LocalSearchActivity extends AppCompatActivity implements ContactsAd
     private static final String TAG = LocalSearchActivity.class.getSimpleName();
 
     private CompositeDisposable disposable = new CompositeDisposable();
-    private ApiService apiService;
+    private ContactApi contactApi;
     private ContactsAdapterFilterable mAdapter;
     private List<Contact> contactsList = new ArrayList<>();
 
@@ -72,7 +72,7 @@ public class LocalSearchActivity extends AppCompatActivity implements ContactsAd
 
         whiteNotificationBar(recyclerView);
 
-        apiService = ApiClient.getClient().create(ApiService.class);
+        contactApi = ApiClient.getClient().create(ContactApi.class);
 
         disposable.add(RxTextView.textChangeEvents(inputSearch)
                 .skipInitialValue()
@@ -119,7 +119,7 @@ public class LocalSearchActivity extends AppCompatActivity implements ContactsAd
      * Fetching all contacts
      */
     private void fetchContacts(String source) {
-        disposable.add(apiService
+        disposable.add(contactApi
                 .getContacts(source, null)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())

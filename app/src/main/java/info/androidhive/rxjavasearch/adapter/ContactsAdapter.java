@@ -19,10 +19,11 @@ import java.util.List;
 
 import info.androidhive.rxjavasearch.R;
 import info.androidhive.rxjavasearch.network.model.Contact;
+import info.androidhive.rxjavasearch.network.model.Person;
 
 public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.MyViewHolder> {
     private Context context;
-    private List<Contact> contactList;
+    private List<Person> personList;
     private ContactsAdapterListener listener;
 
     public class MyViewHolder extends RecyclerView.ViewHolder {
@@ -39,17 +40,17 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.MyView
                 @Override
                 public void onClick(View view) {
                     // send selected contact in callback
-                    listener.onContactSelected(contactList.get(getAdapterPosition()));
+                    listener.onContactSelected(personList.get(getAdapterPosition()));
                 }
             });
         }
     }
 
 
-    public ContactsAdapter(Context context, List<Contact> contactList, ContactsAdapterListener listener) {
+    public ContactsAdapter(Context context, List<Person> personList, ContactsAdapterListener listener) {
         this.context = context;
         this.listener = listener;
-        this.contactList = contactList;
+        this.personList = personList;
     }
 
     @Override
@@ -62,22 +63,22 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.MyView
 
     @Override
     public void onBindViewHolder(MyViewHolder holder, final int position) {
-        final Contact contact = contactList.get(position);
-        holder.name.setText(contact.getName());
-        holder.phone.setText(contact.getPhone());
+        final Person person = personList.get(position);
+        holder.name.setText(person.getFirstName());
+        holder.phone.setText(person.getLastName());
 
-        Glide.with(context)
-                .load(contact.getProfileImage())
+/*        Glide.with(context)
+                .load(person.getProfileImage())
                 .apply(RequestOptions.circleCropTransform())
-                .into(holder.thumbnail);
+                .into(holder.thumbnail);*/
     }
 
     @Override
     public int getItemCount() {
-        return contactList.size();
+        return personList.size();
     }
 
     public interface ContactsAdapterListener {
-        void onContactSelected(Contact contact);
+        void onContactSelected(Person person);
     }
 }
