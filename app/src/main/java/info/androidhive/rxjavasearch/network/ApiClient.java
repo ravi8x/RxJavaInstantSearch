@@ -32,7 +32,7 @@ public class ApiClient {
 
         if (retrofit == null) {
             retrofit = new Retrofit.Builder()
-                    .baseUrl(Const.BASE_URL)
+                    .baseUrl(Const.LOCALHOST_URL)
                     .client(okHttpClient)
                     .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                     .addConverterFactory(GsonConverterFactory.create())

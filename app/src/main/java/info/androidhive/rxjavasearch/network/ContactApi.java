@@ -11,7 +11,7 @@ import retrofit2.http.Query;
  * Created by ravi on 31/01/18.
  */
 
-public interface ApiService {
+public interface ContactApi {
 
     @GET("contacts.php")
     Single<List<Contact>> getContacts(@Query("source") String source, @Query("search") String query);

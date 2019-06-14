@@ -2,20 +2,20 @@ package info.androidhive.rxjavasearch.view;
 
 import android.graphics.Color;
 import android.os.Build;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.DefaultItemAnimator;
-import android.support.v7.widget.DividerItemDecoration;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
+import androidx.recyclerview.widget.DefaultItemAnimator;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.appcompat.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 
-import com.jakewharton.rxbinding2.widget.RxTextView;
-import com.jakewharton.rxbinding2.widget.TextViewTextChangeEvent;
+import com.jakewharton.rxbinding3.widget.RxTextView;
+import com.jakewharton.rxbinding3.widget.TextViewTextChangeEvent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +27,7 @@ import butterknife.Unbinder;
 import info.androidhive.rxjavasearch.R;
 import info.androidhive.rxjavasearch.adapter.ContactsAdapterFilterable;
 import info.androidhive.rxjavasearch.network.ApiClient;
-import info.androidhive.rxjavasearch.network.ApiService;
+import info.androidhive.rxjavasearch.network.ContactApi;
 import info.androidhive.rxjavasearch.network.model.Contact;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
@@ -40,7 +40,7 @@ public class LocalSearchActivity extends AppCompatActivity implements ContactsAd
     private static final String TAG = LocalSearchActivity.class.getSimpleName();
 
     private CompositeDisposable disposable = new CompositeDisposable();
-    private ApiService apiService;
+    private ContactApi contactApi;
     private ContactsAdapterFilterable mAdapter;
     private List<Contact> contactsList = new ArrayList<>();
 
@@ -72,7 +72,7 @@ public class LocalSearchActivity extends AppCompatActivity implements ContactsAd
 
         whiteNotificationBar(recyclerView);
 
-        apiService = ApiClient.getClient().create(ApiService.class);
+        contactApi = ApiClient.getClient().create(ContactApi.class);
 
         disposable.add(RxTextView.textChangeEvents(inputSearch)
                 .skipInitialValue()
@@ -99,8 +99,8 @@ public class LocalSearchActivity extends AppCompatActivity implements ContactsAd
         return new DisposableObserver<TextViewTextChangeEvent>() {
             @Override
             public void onNext(TextViewTextChangeEvent textViewTextChangeEvent) {
-                Log.d(TAG, "Search query: " + textViewTextChangeEvent.text());
-                mAdapter.getFilter().filter(textViewTextChangeEvent.text());
+                Log.d(TAG, "Search query: " + textViewTextChangeEvent.getText());
+                mAdapter.getFilter().filter(textViewTextChangeEvent.getText());
             }
 
             @Override
@@ -119,7 +119,7 @@ public class LocalSearchActivity extends AppCompatActivity implements ContactsAd
      * Fetching all contacts
      */
     private void fetchContacts(String source) {
-        disposable.add(apiService
+        disposable.add(contactApi
                 .getContacts(source, null)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())

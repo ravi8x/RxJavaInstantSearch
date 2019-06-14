@@ -2,20 +2,20 @@ package info.androidhive.rxjavasearch.view;
 
 import android.graphics.Color;
 import android.os.Build;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.DefaultItemAnimator;
-import android.support.v7.widget.DividerItemDecoration;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
+import androidx.recyclerview.widget.DefaultItemAnimator;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.appcompat.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 
-import com.jakewharton.rxbinding2.widget.RxTextView;
-import com.jakewharton.rxbinding2.widget.TextViewTextChangeEvent;
+import com.jakewharton.rxbinding3.widget.RxTextView;
+import com.jakewharton.rxbinding3.widget.TextViewTextChangeEvent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,8 +27,10 @@ import butterknife.Unbinder;
 import info.androidhive.rxjavasearch.R;
 import info.androidhive.rxjavasearch.adapter.ContactsAdapter;
 import info.androidhive.rxjavasearch.network.ApiClient;
-import info.androidhive.rxjavasearch.network.ApiService;
+import info.androidhive.rxjavasearch.network.ContactApi;
+import info.androidhive.rxjavasearch.network.PersonsApi;
 import info.androidhive.rxjavasearch.network.model.Contact;
+import info.androidhive.rxjavasearch.network.model.Person;
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
@@ -43,9 +45,11 @@ public class RemoteSearchActivity extends AppCompatActivity implements ContactsA
 
     private CompositeDisposable disposable = new CompositeDisposable();
     private PublishSubject<String> publishSubject = PublishSubject.create();
-    private ApiService apiService;
+    private ContactApi contactApi;
+    private PersonsApi personsApi;
     private ContactsAdapter mAdapter;
     private List<Contact> contactsList = new ArrayList<>();
+    private List<Person> personList = new ArrayList<>();
 
     @BindView(R.id.input_search)
     EditText inputSearch;
@@ -66,7 +70,7 @@ public class RemoteSearchActivity extends AppCompatActivity implements ContactsA
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        mAdapter = new ContactsAdapter(this, contactsList, this);
+        mAdapter = new ContactsAdapter(this, personList, this);
 
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
         recyclerView.setLayoutManager(mLayoutManager);
@@ -76,18 +80,24 @@ public class RemoteSearchActivity extends AppCompatActivity implements ContactsA
 
         whiteNotificationBar(recyclerView);
 
-        apiService = ApiClient.getClient().create(ApiService.class);
+        contactApi = ApiClient.getClient().create(ContactApi.class);
+        personsApi = ApiClient.getClient().create(PersonsApi.class);
 
-        DisposableObserver<List<Contact>> observer = getSearchObserver();
+        initReactiveX();
+    }
+
+    private void initReactiveX() {
+        DisposableObserver<List<Person>> observer = getSearchObserver();
 
         disposable.add(
                 publishSubject
                         .debounce(300, TimeUnit.MILLISECONDS)
                         .distinctUntilChanged()
-                        .switchMapSingle(new Function<String, Single<List<Contact>>>() {
+                        .switchMapSingle(new Function<String, Single<List<Person>>>() {
                             @Override
-                            public Single<List<Contact>> apply(String s) throws Exception {
-                                return apiService.getContacts(null, s)
+                            public Single<List<Person>> apply(String s) throws Exception {
+                                Log.d("From_me", "personsApi.getPersons: " + s);
+                                return personsApi.getPersons(null, 10000, s)
                                         .subscribeOn(Schedulers.io())
                                         .observeOn(AndroidSchedulers.mainThread());
                             }
@@ -110,12 +120,12 @@ public class RemoteSearchActivity extends AppCompatActivity implements ContactsA
         publishSubject.onNext("");
     }
 
-    private DisposableObserver<List<Contact>> getSearchObserver() {
-        return new DisposableObserver<List<Contact>>() {
+    private DisposableObserver<List<Person>> getSearchObserver() {
+        return new DisposableObserver<List<Person>>() {
             @Override
-            public void onNext(List<Contact> contacts) {
-                contactsList.clear();
-                contactsList.addAll(contacts);
+            public void onNext(List<Person> persons) {
+                personList.clear();
+                personList.addAll(persons);
                 mAdapter.notifyDataSetChanged();
             }
 
@@ -135,9 +145,9 @@ public class RemoteSearchActivity extends AppCompatActivity implements ContactsA
         return new DisposableObserver<TextViewTextChangeEvent>() {
             @Override
             public void onNext(TextViewTextChangeEvent textViewTextChangeEvent) {
-                Log.d(TAG, "Search query: " + textViewTextChangeEvent.text());
+                Log.d(TAG, "Search query: " + textViewTextChangeEvent.getText());
 
-                publishSubject.onNext(textViewTextChangeEvent.text().toString());
+                publishSubject.onNext(textViewTextChangeEvent.getText().toString());
             }
 
             @Override
@@ -160,7 +170,7 @@ public class RemoteSearchActivity extends AppCompatActivity implements ContactsA
     }
 
     @Override
-    public void onContactSelected(Contact contact) {
+    public void onContactSelected(Person contact) {
 
     }
 
