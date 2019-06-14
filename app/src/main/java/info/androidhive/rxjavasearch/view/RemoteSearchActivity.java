@@ -14,8 +14,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 
-import com.jakewharton.rxbinding2.widget.RxTextView;
-import com.jakewharton.rxbinding2.widget.TextViewTextChangeEvent;
+import com.jakewharton.rxbinding3.widget.RxTextView;
+import com.jakewharton.rxbinding3.widget.TextViewTextChangeEvent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -135,9 +135,9 @@ public class RemoteSearchActivity extends AppCompatActivity implements ContactsA
         return new DisposableObserver<TextViewTextChangeEvent>() {
             @Override
             public void onNext(TextViewTextChangeEvent textViewTextChangeEvent) {
-                Log.d(TAG, "Search query: " + textViewTextChangeEvent.text());
+                Log.d(TAG, "Search query: " + textViewTextChangeEvent.getText());
 
-                publishSubject.onNext(textViewTextChangeEvent.text().toString());
+                publishSubject.onNext(textViewTextChangeEvent.getText().toString());
             }
 
             @Override
